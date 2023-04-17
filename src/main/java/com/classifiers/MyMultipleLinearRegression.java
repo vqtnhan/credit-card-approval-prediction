@@ -25,9 +25,20 @@ public class MyMultipleLinearRegression extends AbstractClassifier {
     protected double[] m_StdDevs;
     protected int m_AttributeSelection;
     protected double m_Ridge = 1.0e-8;
+    protected boolean m_isZeroR;
 
     @Override
     public void buildClassifier(Instances data) throws Exception {
+        m_isZeroR = false;
+
+        if (data.numInstances() == 1) {
+            m_Coefficients = new double[1];
+            m_Coefficients[0] = data.instance(0).classValue();
+            m_SelectedAttributes = new boolean[data.numAttributes()];
+            m_isZeroR = true;
+            return;
+        }
+
         getCapabilities().testWithFail(data);
 
         data = new Instances(data);
@@ -70,12 +81,14 @@ public class MyMultipleLinearRegression extends AbstractClassifier {
     @Override
     public double classifyInstance(Instance instance) throws Exception {
         Instance transformedInstance = instance;
-        m_TransformFilter.input(transformedInstance);
-        m_TransformFilter.batchFinished();
-        transformedInstance = m_TransformFilter.output();
-        m_MissingFilter.input(transformedInstance);
-        m_MissingFilter.batchFinished();
-        transformedInstance = m_MissingFilter.output();
+        if (!m_isZeroR) {
+            m_TransformFilter.input(transformedInstance);
+            m_TransformFilter.batchFinished();
+            transformedInstance = m_TransformFilter.output();
+            m_MissingFilter.input(transformedInstance);
+            m_MissingFilter.batchFinished();
+            transformedInstance = m_MissingFilter.output();
+        }
 
         return regressionPrediction(transformedInstance, m_SelectedAttributes,
                 m_Coefficients);
