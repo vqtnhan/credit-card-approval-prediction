@@ -10,15 +10,19 @@ import weka.core.converters.ConverterUtils.DataSource;
 
 public class KNNEvaluation {
     public static void main(String[] args) throws Exception {
-        DataSource source = new DataSource("./data/out.arff");
-        Instances dataset = source.getDataSet();
-        dataset.setClassIndex(dataset.numAttributes() - 1);
+        DataSource trainSource = new DataSource("./data/train.arff");
+        Instances trainset = trainSource.getDataSet();
+        trainset.setClassIndex(trainset.numAttributes() - 1);
 
         MyKNN model = new MyKNN();
-        model.buildClassifier(dataset);
+        model.buildClassifier(trainset);
 
-        Evaluation evaluator = new Evaluation(dataset);
-        evaluator.crossValidateModel(model, dataset, 10, new Random(0));
+        DataSource testSource = new DataSource("./data/test.arff");
+        Instances testset = testSource.getDataSet();
+        testset.setClassIndex(testset.numAttributes() - 1);
+
+        Evaluation evaluator = new Evaluation(testset);
+        evaluator.crossValidateModel(model, testset, 10, new Random(0));
         System.out.println(evaluator.toSummaryString());
     }
 }
