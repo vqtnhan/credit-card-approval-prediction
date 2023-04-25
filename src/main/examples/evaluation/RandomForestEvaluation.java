@@ -10,19 +10,25 @@ import weka.core.converters.ConverterUtils.DataSource;
 
 public class RandomForestEvaluation {
     public static void main(String[] args) throws Exception {
-        DataSource trainSource = new DataSource("./data/train.arff");
+        DataSource trainSource = new DataSource("./data/train_nominal.arff");
         Instances trainset = trainSource.getDataSet();
         trainset.setClassIndex(trainset.numAttributes() - 1);
 
         MyRandomForest model = new MyRandomForest();
         model.buildClassifier(trainset);
 
-        DataSource testSource = new DataSource("./data/test.arff");
+        DataSource testSource = new DataSource("./data/test_nominal.arff");
         Instances testset = testSource.getDataSet();
         testset.setClassIndex(testset.numAttributes() - 1);
 
-        Evaluation evaluator = new Evaluation(testset);
+        Evaluation evaluator = new Evaluation(trainset);
         evaluator.crossValidateModel(model, testset, 10, new Random(0));
-        System.out.println(evaluator.toSummaryString());
+        System.out.println(evaluator.toClassDetailsString());
+
+        evaluator.evaluateModel(model, testset);
+        System.out.println("Correctly Classified Instances: " + evaluator.correct());
+        System.out.println("Incorrectly Classified Instances: " + evaluator.incorrect());
+        System.out.println("Percent of Correctly Classified Instances: " + evaluator.pctCorrect());
+        System.out.println("Percent of Incorrectly Classified Instances: " + evaluator.pctIncorrect());
     }
 }
