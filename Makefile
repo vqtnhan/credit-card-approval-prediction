@@ -7,4 +7,8 @@ csv2arff: $(DATA_DIR)/*
 		java -cp $(LIB_DIR)/weka.jar weka.core.converters.CSVLoader $${file%.*}.csv > $${file%.*}.arff; \
 	done
 
-all: csv2arff
+generate:
+	sleep 2
+	python scripts/generate_custom_arff.py
+
+all: csv2arff generate
